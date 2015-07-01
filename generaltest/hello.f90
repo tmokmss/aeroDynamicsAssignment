@@ -1,3 +1,3 @@
 program hello
-  print *, 'hello'
+  print *, 'hello fortran, and Git!'
 end program
