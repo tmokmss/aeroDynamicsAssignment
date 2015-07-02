@@ -19,8 +19,8 @@ for i in xrange(numeNum):
 for row in reader:
   j.append(float(row[0]))
   exact[0].append(float(row[3]))
-  numerical[0].append(float(row[4]))
-  exact[1].append(float(row[5]))
+  numerical[0].append(float(row[5]))
+  exact[1].append(float(row[4]))
   numerical[1].append(float(row[6]))
 
 

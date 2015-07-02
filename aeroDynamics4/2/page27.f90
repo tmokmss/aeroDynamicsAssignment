@@ -48,16 +48,17 @@ program page27
   ri(2,1) = r(2,1)/det
   ri(1,2) = r(1,2)/det
   ri(2,2) = r(1,1)/det
-  write(*,*) ri(1,1), ri(1,2)
-  write(*,*) ri(2,1), ri(2,2)
+  write(*,*) det
+  write(*,*) r(1,1), r(1,2)
+  write(*,*) r(2,1), r(2,2)
   write(*,*) ram
   
   ul = 1.0
   vl = 1.0
-  ur = 0.0
-  vr = 0.0
+  ur = 3.0
+  vr = 3.0
   cfl = 0.5
-  nlast = 10
+  nlast = 5
   dt = cfl*dx/amax1(ram(1),ram(2))
 
   ! solve exact solution
@@ -65,8 +66,8 @@ program page27
   a2l = ri(2,1)*ul+ri(2,2)*vl
   a1r = ri(1,1)*ur+ri(1,2)*vr
   a2r = ri(2,1)*ur+ri(2,2)*vr
-  do i=1,mx
-    alfa(1,i)=a1l
+  do i=1, mx
+    alfa(1,i) = a1l
     if (x(i)>ram(1)*dt*float(nlast)) alfa(1,i) = a1r
     alfa(2,i) = a2l
     if (x(i)>ram(2)*dt*float(nlast)) alfa(2,i) = a2r
@@ -75,6 +76,7 @@ program page27
   enddo
 
   ! numerical solutions
+  ! initial condition
   do i=1, mx
     if (x(i)<=0.0) then
       u(i) = ul
@@ -85,7 +87,6 @@ program page27
     endif
     q(1,i) = u(i)
     q(2,i) = v(i)
-
     ui(i) = u(i)
     vi(i) = v(i)
   enddo
@@ -130,13 +131,10 @@ program page27
   close(unit=10)
   
   open(unit=11,file='result27.csv', action='readwrite')
-  write(11,*) 'x, u(initial), v, u(Exact), v, u(Comp)'
+  write(11,*) 'x, u(initial), v, u(Exact), v, u(Comp), v'
   do i=0, mx
     write(11, *) x(i),',',ui(i),',',vi(i),',',us(i),',',vs(i),',',u(i),',',v(i)
   enddo
   close(unit=11)
-
-
-
 
 end program
