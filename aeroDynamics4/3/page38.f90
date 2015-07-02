@@ -3,16 +3,17 @@
 
 program page38
   implicit none
-  integer, parameter :: num = 500, dime = 3
+  integer, parameter :: num = 300, dime = 3
   real :: dx, cfl, dt, time, eps, g, rhol, ul, pl, rhor, &
           ur, pr, rgas, cvgas, ecp
   real, dimension(-5:num+5) :: x, rho, u, p, e
   real, dimension(dime, -5:num+5) :: q, qold, flux
+  real, dimension(:,:), allocatable :: xt, rhot, ut, pt, et
   integer :: i, n, nlast, mx
   real :: atmpa, platm, pratm, tl, tr, xmax, xmin, tmsec, ustar
 
   ! set grid
-  mx = 401
+  mx = num
   xmin = -2.0
   xmax = 2.0
   dx = (xmax-xmin)/float(mx-1)
@@ -36,7 +37,7 @@ program page38
   pratm = 1
   pr = pratm*atmpa
   rhor = pr/(rgas*tr)
-  tmsec = 5
+  tmsec = 4
   time = tmsec*1.0e-03
   cfl = 0.5
   ecp = 0.125
@@ -47,7 +48,8 @@ program page38
   nlast = int(time/dt)
   time = dt*float(nlast)
 
-  do i=1,mx
+  !initial condition 
+  do i=1,mx 
     if (x(i) < 0.0) then
       rho(i) = rhol
       u(i) = ul
@@ -63,13 +65,14 @@ program page38
     q(2,i) = rho(i)*u(i)
     q(3,i) = rho(i)*(e(i)+0.5*u(i)**2)
   enddo
+ 
+  allocate(rhot(1:nlast, -5:num+5), &
+           ut(1:nlast, -5:num+5), &
+           pt(1:nlast, -5:num+5), &
+           et(1:nlast, -5:num+5))
 
   do n=1,nlast
-    do i=1,mx
-      qold(1,i) = q(1,i)
-      qold(2,i) = q(2,i)
-      qold(3,i) = q(3,i)
-    enddo
+    qold(1:3, 1:mx) = q(1:3, 1:mx)
     call calflx
     do i=4,mx-3
       q(1,i) = qold(1,i)-(dt/dx)*(flux(1,i)-flux(1,i-1))
@@ -80,6 +83,10 @@ program page38
       p(i) = (g-1.0)*(q(3,i)-0.5*rho(i)*u(i)**2)
       e(i) = p(i)/((g-1.0)*rho(i))
     enddo
+    rhot(n, :) = rho(:)
+    ut(n, :) = u(:)
+    pt(n, :) = p(:)
+    et(n, :) = e(:)
   enddo
 
   ! write results
@@ -106,7 +113,74 @@ program page38
   enddo
   close(unit=11)
 
+  open(unit=12,file='ut38.csv', action='readwrite')
+  do n=1, nlast
+    write(12, fmt='(F15.7)',advance='no') n*dt
+    write(12, fmt='(a)',advance='no') ','
+    do i=0, mx-1
+      write(12, fmt='(F15.7)',advance='no') ut(n,i)
+      write(12, fmt='(a)', advance='no') ','
+    enddo
+    write(12, *) ut(n,mx)
+  enddo
+  close(unit=12)
+  
+  open(unit=13,file='rhot38.csv', action='readwrite')
+  do n=1, nlast
+    write(13, fmt='(F15.7)',advance='no') n*dt
+    write(13, fmt='(a)',advance='no') ','
+    do i=0, mx-1
+      write(13, fmt='(F15.7)',advance='no') rhot(n,i)
+      write(13, fmt='(a)', advance='no') ','
+    enddo
+    write(13, *) rhot(n,mx)
+  enddo
+  close(unit=13)
+
+  open(unit=14,file='pt38.csv', action='readwrite')
+  do n=1, nlast
+    write(14, fmt='(F15.7)',advance='no') n*dt
+    write(14, fmt='(a)',advance='no') ','
+    do i=0, mx-1
+      write(14, fmt='(F15.7)',advance='no') pt(n,i)
+      write(14, fmt='(a)', advance='no') ','
+    enddo
+    write(14, *) pt(n,mx)
+  enddo
+  close(unit=14)
+
+  open(unit=15,file='et38.csv', action='readwrite')
+  do n=1, nlast
+    write(15, fmt='(F15.7)',advance='no') n*dt
+    write(15, fmt='(a)',advance='no') ','
+    do i=0, mx-1
+      write(15, fmt='(F15.7)',advance='no') et(n,i)
+      write(15, fmt='(a)', advance='no') ','
+    enddo
+    write(15, *) et(n,mx)
+  enddo
+  close(unit=15)
+  !call saveCsvt(et, 'et382.csv', 16)
+
 contains
+  subroutine saveCsvt(array, fname, unitnum)
+    real, dimension(:, :), intent(in) :: array
+    character(*), intent(in) :: fname
+    integer, intent(in) :: unitnum
+
+    open(unit=unitnum,file=fname, action='readwrite')
+    do n=1, nlast
+      write(unitnum, fmt='(F15.7)',advance='no') n*dt
+      write(unitnum, fmt='(a)',advance='no') ','
+      do i=0, mx-1
+        write(unitnum, fmt='(F15.7)',advance='no') array(n,i)
+        write(unitnum, fmt='(a)', advance='no') ','
+      enddo
+      write(unitnum, *) array(n,mx)
+    enddo
+    close(unit=unitnum)
+  end subroutine
+
   subroutine calflx()
     real, dimension(dime, -5:num+5) :: ram, alfa
     real, dimension(dime, dime, -5:num+5) :: veck

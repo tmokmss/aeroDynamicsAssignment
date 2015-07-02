@@ -45,20 +45,21 @@ program page27
   r(2,2) = -(a(1,1)-ram(2))*r(1,2)/a(1,2)
   det = r(1,1)*r(2,2)-r(1,2)*r(2,1)
   ri(1,1) = r(2,2)/det
-  ri(2,1) = r(2,1)/det
-  ri(1,2) = r(1,2)/det
+  ri(2,1) = r(1,2)/det
+  ri(1,2) = r(2,1)/det
   ri(2,2) = r(1,1)/det
-  write(*,*) det
   write(*,*) r(1,1), r(1,2)
   write(*,*) r(2,1), r(2,2)
   write(*,*) ram
+  write(*,*) ri(1,1), ri(1,2)
+  write(*,*) ri(2,1), ri(2,2)
   
   ul = 1.0
   vl = 1.0
-  ur = 3.0
-  vr = 3.0
+  ur = 2.0
+  vr = -1.0
   cfl = 0.5
-  nlast = 5
+  nlast = 80
   dt = cfl*dx/amax1(ram(1),ram(2))
 
   ! solve exact solution
