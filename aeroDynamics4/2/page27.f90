@@ -30,7 +30,7 @@ program page27
   ! set parameters
   a(1, 1) = 5
   a(1, 2) = 2
-  a(2, 1) = 9
+  a(2, 1) = 10
   a(2, 2) = 4
 
   !eigenvalues & vectors

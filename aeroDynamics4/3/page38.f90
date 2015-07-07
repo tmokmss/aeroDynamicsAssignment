@@ -28,13 +28,13 @@ program page38
   rgas = 8.314e+03/28.96
   cvgas = rgas/(g-1.0)
   ul = 0
-  tl = 400
-  platm = 5
+  tl = 500
+  platm = 1
   pl = platm*atmpa
   rhol = pl/(rgas*tl)
-  ur = 0
+  ur = 3
   tr = 300
-  pratm = 1
+  pratm = 5
   pr = pratm*atmpa
   rhor = pr/(rgas*tr)
   tmsec = 4
@@ -42,7 +42,7 @@ program page38
   cfl = 0.5
   ecp = 0.125
   ustar = sqrt(g*rgas*tl)
-
+  
   ! numerical solutions
   dt = cfl*dx/sqrt(g*rgas*amax1(tl,tr))
   nlast = int(time/dt)
@@ -85,8 +85,8 @@ program page38
     enddo
     rhot(n, :) = rho(:)
     ut(n, :) = u(:)
-    pt(n, :) = p(:)
-    et(n, :) = e(:)
+    pt(n, :) = p(:)/atmpa
+    et(n, :) = e(:)/cvgas
   enddo
 
   ! write results
@@ -108,7 +108,7 @@ program page38
   
   open(unit=11,file='result38.csv', action='readwrite')
   write(11,*) 'x(m), density, u, p, T'
-  do i=0, mx
+  do i=1, mx
     write(11, *) x(i),',',rho(i),',',u(i),',',p(i)/atmpa,',',e(i)/cvgas
   enddo
   close(unit=11)
@@ -117,7 +117,7 @@ program page38
   do n=1, nlast
     write(12, fmt='(F15.7)',advance='no') n*dt
     write(12, fmt='(a)',advance='no') ','
-    do i=0, mx-1
+    do i=1, mx-1
       write(12, fmt='(F15.7)',advance='no') ut(n,i)
       write(12, fmt='(a)', advance='no') ','
     enddo
@@ -129,7 +129,7 @@ program page38
   do n=1, nlast
     write(13, fmt='(F15.7)',advance='no') n*dt
     write(13, fmt='(a)',advance='no') ','
-    do i=0, mx-1
+    do i=1, mx-1
       write(13, fmt='(F15.7)',advance='no') rhot(n,i)
       write(13, fmt='(a)', advance='no') ','
     enddo
@@ -141,7 +141,7 @@ program page38
   do n=1, nlast
     write(14, fmt='(F15.7)',advance='no') n*dt
     write(14, fmt='(a)',advance='no') ','
-    do i=0, mx-1
+    do i=1, mx-1
       write(14, fmt='(F15.7)',advance='no') pt(n,i)
       write(14, fmt='(a)', advance='no') ','
     enddo
@@ -153,7 +153,7 @@ program page38
   do n=1, nlast
     write(15, fmt='(F15.7)',advance='no') n*dt
     write(15, fmt='(a)',advance='no') ','
-    do i=0, mx-1
+    do i=1, mx-1
       write(15, fmt='(F15.7)',advance='no') et(n,i)
       write(15, fmt='(a)', advance='no') ','
     enddo
@@ -172,7 +172,7 @@ contains
     do n=1, nlast
       write(unitnum, fmt='(F15.7)',advance='no') n*dt
       write(unitnum, fmt='(a)',advance='no') ','
-      do i=0, mx-1
+      do i=1, mx-1
         write(unitnum, fmt='(F15.7)',advance='no') array(n,i)
         write(unitnum, fmt='(a)', advance='no') ','
       enddo
@@ -203,7 +203,7 @@ contains
       plt = (g-1.0)*(q3lt-0.5*rlt*ult**2)
       hlt = (q3lt+plt)/rlt
       rrt = q1rt
-      urt = q2rt/q1rt
+      urt = q2rt/rrt
       prt = (g-1.0)*(q3rt-0.5*rrt*urt**2)
       hrt = (q3rt+prt)/rrt
      

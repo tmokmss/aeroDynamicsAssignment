@@ -3,7 +3,7 @@
 
 program page34
   implicit none
-  integer, parameter :: size = 52
+  integer, parameter :: size = 104
   real, dimension(-1:size) :: x, yi, ye, ys1, ys2, ys3, ys4, flux, work
   real :: c, cfl, dx, dt, travel, ul, ur
   integer :: mx, nlast
@@ -14,9 +14,9 @@ program page34
   ecp = 0.5
   c = 1.0
   mx = size-1
-  nlast = 10
+  nlast = 20
   cfl = 0.5
-  dx = 0.02
+  dx = 0.01
   dt = cfl*dx
   travel = dt*c*float(nlast)
   ul = 1.0
