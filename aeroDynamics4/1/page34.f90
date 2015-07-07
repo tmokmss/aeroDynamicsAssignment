@@ -3,21 +3,24 @@
 
 program page34
   implicit none
-  integer, parameter :: size = 520
-  real, dimension(-1:size) :: x, yi, ye, ys1, ys2, ys3, flux, work
-  real :: c, cfl, dx, dt, travel
+  integer, parameter :: size = 52
+  real, dimension(-1:size) :: x, yi, ye, ys1, ys2, ys3, ys4, flux, work
+  real :: c, cfl, dx, dt, travel, ul, ur
   integer :: mx, nlast
 
   real :: dm,d0,dp,s,q,ac,f,ecp,sb1,sb2,scp
   integer :: i,n
 
+  ecp = 0.5
   c = 1.0
   mx = size-1
-  nlast = 30
+  nlast = 10
   cfl = 0.5
-  dx = 0.002
+  dx = 0.02
   dt = cfl*dx
   travel = dt*c*float(nlast)
+  ul = 1.0
+  ur = 0.0
 
   ! set grid
   do i=-1,mx+1
@@ -27,18 +30,18 @@ program page34
   ! set initial condition
   do i = -1,mx+1
     if(x(i) < 0.5) then
-      yi(i) = 1.0
+      yi(i) = ul
     else
-      yi(i) = 0.0
+      yi(i) = ur
     endif
   enddo
 
   ! set exact condition
   do i=-1,mx+1
     if (x(i)<0.5+travel) then
-      ye(i) = 1.0
+      ye(i) = ul
     else
-      ye(i) = 0.0
+      ye(i) = ur
     endif
   enddo
 
@@ -107,17 +110,34 @@ program page34
     ys3(1:mx-1) = work(1:mx-1)
   enddo
   
+  ! Lax-wendroff
+  ys4 = yi
+  do n=1,nlast
+    do i=1,mx-1
+      work(i) = 0.5*cfl*(1.+cfl)*ys4(i-1)+(1.-cfl**2)*ys4(i) &
+              - 0.5*cfl*(1.-cfl)*ys4(i+1)
+      !work(i) = ys4(i)-cfl*(ys4(i)-ys4(i-1))
+    enddo
+    ys4(1:mx-1) = work(1:mx-1)
+  enddo
+
+
+
   ! write results
   open(unit=10,file='config34.txt', action='readwrite')
   write(10,*) 'mx: ', mx
   write(10,*) 'cfl: ', cfl
   write(10,*) 'nlast: ', nlast
+  write(10,*) 'dx: ', dx
+  write(10,*) 'dt: ', dt
+  write(10,*) 'ul: ', ul
+  write(10,*) 'ur: ', ur
   close(unit=10)
   
   open(unit=11,file='result34.csv', action='readwrite')
-  write(11,*) 'j, initial, exact, minmod1, minmod2, superbee'
+  write(11,*) 'j, initial, exact, minmod1, superbee, Lax-wendroff'
   do i=0, mx
-    write(11, *) x(i),',',yi(i),',',ye(i),',',ys1(i),',',ys2(i),',',ys3(i)
+    write(11, *) x(i),',',yi(i),',',ye(i),',',ys1(i),',',ys3(i),',',ys4(i)
   enddo
   close(unit=11)
 

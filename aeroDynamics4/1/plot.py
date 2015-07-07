@@ -21,9 +21,29 @@ for row in reader:
   for i in xrange(numeNum):
     numerical[i].append(float(row[3+i]))
 
-pl.plot(j, exact, label='Exact')
-for nume in numerical:
-  pl.plot(j, nume, label='Numerical')
+#  calc errors
+def calc_error(exact, nume):
+  errorsum = 0
+  for ei, ni in zip(exact, nume):
+    error = (ei-ni)
+    if (abs(ei) > 0.0000001):
+      error /= ei
+    errorsum += abs(error)
+  return errorsum/len(exact)
+
+print 'calculated error:'
+for nume, row in zip(numerical, rowname[3:]):  
+  print row, calc_error(exact, nume)
+
+pl.plot(j, exact, label=' Exact')
+for nume, row in zip(numerical, rowname[3:]):
+  pl.plot(j, nume, label=row)
 pl.legend()
 pl.xlim([j[0],j[-1]])
+pl.xlabel('x', fontsize=20)
+pl.ylabel('u', fontsize=20)
+pl.savefig(filename+'.png')
+pl.savefig(filename+'.eps')
 pl.show()
+
+

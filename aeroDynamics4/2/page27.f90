@@ -28,9 +28,9 @@ program page27
   enddo
 
   ! set parameters
-  a(1, 1) = 3
-  a(1, 2) = 1
-  a(2, 1) = 2
+  a(1, 1) = 5
+  a(1, 2) = 2
+  a(2, 1) = 9
   a(2, 2) = 4
 
   !eigenvalues & vectors
@@ -40,13 +40,13 @@ program page27
   ram(1) = (-bbb-sqrt(ddd))/2.0
   ram(2) = (-bbb+sqrt(ddd))/2.0
   r(1,1) = 1.0
-  r(2,1) = -(a(1,1)-ram(1))*r(1,1)/a(1,2)
   r(1,2) = 1.0
-  r(2,2) = -(a(1,1)-ram(2))*r(1,2)/a(1,2)
+  r(2,1) = -(a(1,1)-ram(1))/a(1,2)
+  r(2,2) = -(a(1,1)-ram(2))/a(1,2)
   det = r(1,1)*r(2,2)-r(1,2)*r(2,1)
   ri(1,1) = r(2,2)/det
-  ri(2,1) = r(1,2)/det
-  ri(1,2) = r(2,1)/det
+  ri(2,1) = -r(2,1)/det
+  ri(1,2) = -r(1,2)/det
   ri(2,2) = r(1,1)/det
   write(*,*) r(1,1), r(1,2)
   write(*,*) r(2,1), r(2,2)
@@ -55,11 +55,11 @@ program page27
   write(*,*) ri(2,1), ri(2,2)
   
   ul = 1.0
-  vl = 1.0
-  ur = 2.0
-  vr = -1.0
+  vl = 5.0
+  ur = 3.0
+  vr = 2.0
   cfl = 0.5
-  nlast = 80
+  nlast = 40
   dt = cfl*dx/amax1(ram(1),ram(2))
 
   ! solve exact solution
@@ -133,7 +133,7 @@ program page27
   
   open(unit=11,file='result27.csv', action='readwrite')
   write(11,*) 'x, u(initial), v, u(Exact), v, u(Comp), v'
-  do i=0, mx
+  do i=1, mx
     write(11, *) x(i),',',ui(i),',',vi(i),',',us(i),',',vs(i),',',u(i),',',v(i)
   enddo
   close(unit=11)
